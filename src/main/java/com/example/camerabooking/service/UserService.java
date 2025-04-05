@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    
+
     User registerUser(User user); // Register a new user
 
     boolean existsByEmail(String email); // Check if an email already exists
@@ -22,9 +22,11 @@ public interface UserService {
 
     User authenticateUser(User user); // Authenticate user (Login)
 
-    void sendResetPasswordEmail(String email); // Send reset password email
+    void sendResetPasswordEmail(String email); // Send OTP to email
 
-    void resetPassword(String token, String newPassword); // Reset password using token
+    boolean verifyOtp(String email, String otp); // Verify OTP for given email
+
+    void resetPasswordWithOtp(String email, String newPassword); // Reset password after OTP verification
 
     List<User> getAllAdmins(); // Get all Admin users
 

@@ -10,7 +10,6 @@ import com.example.camerabooking.model.BookingStatus;
 import com.example.camerabooking.service.BookingService;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/bookings")
@@ -25,6 +24,7 @@ public class BookingController {
      */
     @GetMapping
     public ResponseEntity<List<Booking>> getAllBookings() {
+        log.info("Fetching all bookings");
         List<Booking> bookings = bookingService.getAllBookings();
         return ResponseEntity.ok(bookings);
     }
@@ -33,16 +33,19 @@ public class BookingController {
      * Get a booking by ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Booking>> getBookingById(@PathVariable Long id) {
-        Optional<Booking> booking = bookingService.getBookingById(id);
-        return ResponseEntity.ok(booking);
+    public ResponseEntity<Booking> getBookingById(@PathVariable Long id) {
+        log.info("Fetching booking with ID: {}", id);
+        return bookingService.getBookingById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     /**
      * Create a new booking
      */
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<Booking> createBooking(@RequestBody Booking booking) {
+        log.info("Creating a new booking: {}", booking);
         Booking newBooking = bookingService.createBooking(booking);
         return ResponseEntity.ok(newBooking);
     }
@@ -52,12 +55,13 @@ public class BookingController {
      */
     @PatchMapping("/{id}/status")
     public ResponseEntity<?> updateBookingStatus(@PathVariable Long id, @RequestParam String status) {
+        log.info("Updating status for booking ID: {} to {}", id, status);
         try {
-            // Convert String to Enum
             BookingStatus bookingStatus = BookingStatus.valueOf(status.toUpperCase());
             Booking updatedBooking = bookingService.updateBookingStatus(id, bookingStatus);
             return ResponseEntity.ok(updatedBooking);
         } catch (IllegalArgumentException e) {
+            log.error("Invalid booking status: {}", status);
             return ResponseEntity.badRequest().body("Invalid booking status: " + status);
         }
     }
@@ -67,6 +71,7 @@ public class BookingController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
+        log.info("Deleting booking with ID: {}", id);
         bookingService.deleteBooking(id);
         return ResponseEntity.noContent().build();
     }
@@ -76,6 +81,7 @@ public class BookingController {
      */
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Booking>> getBookingsByUser(@PathVariable Long userId) {
+        log.info("Fetching bookings for user ID: {}", userId);
         List<Booking> userBookings = bookingService.getBookingsByUser(userId);
         return ResponseEntity.ok(userBookings);
     }
@@ -85,6 +91,7 @@ public class BookingController {
      */
     @GetMapping("/status/{status}")
     public ResponseEntity<List<Booking>> getBookingsByStatus(@PathVariable BookingStatus status) {
+        log.info("Fetching bookings with status: {}", status);
         List<Booking> statusBookings = bookingService.getBookingsByStatus(status);
         return ResponseEntity.ok(statusBookings);
     }

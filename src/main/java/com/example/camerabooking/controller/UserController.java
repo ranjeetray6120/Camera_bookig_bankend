@@ -2,17 +2,12 @@ package com.example.camerabooking.controller;
 
 import com.example.camerabooking.model.User;
 import com.example.camerabooking.service.UserService;
-
 import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/users")
@@ -73,21 +68,41 @@ public class UserController {
             return ResponseEntity.ok(response);
         }
 
-        return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body(Collections.singletonMap("message", "Invalid email or password"));
+        // If authentication fails
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("message", "Invalid email or password");
+        return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body(errorResponse);
     }
 
-
-
-    @PostMapping("/reset-password")
-    public ResponseEntity<Void> sendResetPasswordEmail(@RequestParam String email) {
-        userService.sendResetPasswordEmail(email);
-        return ResponseEntity.ok().build();
+    // ✅ Step 1: Send OTP to email
+    @PostMapping("/send-otp")
+    public ResponseEntity<Map<String, String>> sendOtp(@RequestParam String email) {
+        try {
+            userService.sendResetPasswordEmail(email);
+            return ResponseEntity.ok(Collections.singletonMap("message", "OTP sent to your email."));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+        }
     }
 
-    @PostMapping("/reset-password/{token}")
-    public ResponseEntity<Void> resetPassword(@PathVariable String token, @RequestParam String newPassword) {
-        userService.resetPassword(token, newPassword);
-        return ResponseEntity.ok().build();
+    // ✅ Step 2: Verify OTP
+    @PostMapping("/verify-otp")
+    public ResponseEntity<Map<String, Object>> verifyOtp(@RequestParam String email, @RequestParam String otp) {
+        boolean isValid = userService.verifyOtp(email, otp);
+        Map<String, Object> response = new HashMap<>();
+        response.put("valid", isValid);
+        response.put("message", isValid ? "OTP verified" : "Invalid or expired OTP");
+        return ResponseEntity.ok(response);
+    }
+
+    // ✅ Step 3: Reset password using OTP
+    @PostMapping("/reset-password-with-otp")
+    public ResponseEntity<Map<String, String>> resetPasswordWithOtp(
+            @RequestParam String email,
+            @RequestParam String newPassword) {
+
+        userService.resetPasswordWithOtp(email, newPassword);
+        return ResponseEntity.ok(Collections.singletonMap("message", "Password reset successfully"));
     }
 
     @GetMapping("/admins")

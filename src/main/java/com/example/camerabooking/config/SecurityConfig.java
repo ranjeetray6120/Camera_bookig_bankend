@@ -15,25 +15,35 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    
+    private static final Logger LOGGER = Logger.getLogger(SecurityConfig.class.getName());
 
-	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	    http
-	        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-	        .csrf(csrf -> csrf.disable())  
-	        .authorizeHttpRequests(auth -> auth
-	        	.requestMatchers("/bookings/**").permitAll()  // ✅ Fixed mapping (previously "/booking/**")
-	            .requestMatchers("/api/users/**").permitAll()
-	            .anyRequest().authenticated()
-	        )
-	        .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        LOGGER.info("Configuring security...");
 
-	    return http.build();
-	}
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())  // Disable CSRF (use with caution)
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/bookings/**").permitAll()  
+                .requestMatchers("/api/users/**").permitAll()
+                .requestMatchers("/ws/**").permitAll()  // Allow WebSocket endpoint
+                .requestMatchers("/viewer.html", "/static/**", "/public/**", "/resources/**").permitAll() // Allow static resources
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // Allow Swagger UI if used
+                .requestMatchers("/api/**").permitAll() // Allow all API calls (if necessary)
+                .requestMatchers("/actuator/**").permitAll() // Allow Spring Actuator for monitoring
+                .anyRequest().authenticated()
+            )
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        return http.build();
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) 
@@ -50,30 +60,23 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // ✅ Allow multiple frontend origins (adjust as needed)
         configuration.setAllowedOrigins(List.of(
             "http://127.0.0.1:5500",
-            "https://camerabooking.netlify.app",   // If React frontend is running
-            "http://localhost:4200"    // If Angular frontend is running
+            "https://camerabooking.netlify.app",
+            "http://localhost:4200",
+            "http://localhost:8080/viewer.html"
         ));
 
-        // ✅ Allow all HTTP methods
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-
-        // ✅ Allow all common headers
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
-
-        // ✅ Allow exposing headers
         configuration.setExposedHeaders(List.of("Authorization", "Access-Control-Allow-Origin"));
-
-        // ✅ Allow credentials (cookies, tokens)
         configuration.setAllowCredentials(true);
 
-        // ✅ Apply CORS settings globally
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
+
+        LOGGER.info("CORS Configuration Applied Successfully.");
         
         return source;
     }
-
 }
