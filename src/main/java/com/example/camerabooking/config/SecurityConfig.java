@@ -65,7 +65,7 @@ public class SecurityConfig {
             "https://camerabooking.netlify.app",
             "http://localhost:4200",
             "http://localhost:8080/viewer.html"
-            "https://radiant-mermaid-6af9a4.netlify.app/"
+            "https://camerabookingweb.netlify.app"
         ));
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
