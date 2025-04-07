@@ -19,7 +19,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class StreamWebSocketHandler extends TextWebSocketHandler {
-    private final KurentoClient kurento = KurentoClient.create("ws://localhost:8888/kurento");
+    private final KurentoClient kurento = KurentoClient.create("wss://your-kurento-host.render.com/kurento");
     private final Map<String, StreamSession> streams = new ConcurrentHashMap<>();
 
     @Override
