@@ -64,7 +64,7 @@ public class SecurityConfig {
             "http://127.0.0.1:5500",
             "https://camerabooking.netlify.app",
             "http://localhost:4200",
-            "http://localhost:8080/viewer.html"
+            "http://localhost:8080/viewer.html",
             "https://camerabookingweb.netlify.app"
         ));
 
