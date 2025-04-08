@@ -11,11 +11,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = {
-        "https://camerabookingweb.netlify.app",
-        "http://localhost:5500",
-        "http://127.0.0.1:5500"
-})
+@CrossOrigin(origins = "*")  // Allow all origins temporarily for testing
 public class UserController {
 
     @Autowired
