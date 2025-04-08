@@ -11,7 +11,11 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "https://camerabookingweb.netlify.app")
+@CrossOrigin(origins = {
+        "https://camerabookingweb.netlify.app",
+        "http://localhost:5500",
+        "http://127.0.0.1:5500"
+})
 public class UserController {
 
     @Autowired
@@ -64,17 +68,14 @@ public class UserController {
             response.put("email", authenticatedUser.getEmail());
             response.put("name", authenticatedUser.getName());
             response.put("role", authenticatedUser.getRole().name());
-
             return ResponseEntity.ok(response);
         }
 
-        // If authentication fails
         Map<String, String> errorResponse = new HashMap<>();
         errorResponse.put("message", "Invalid email or password");
         return ResponseEntity.status(HttpStatus.SC_UNAUTHORIZED).body(errorResponse);
     }
 
-    // ✅ Step 1: Send OTP to email
     @PostMapping("/send-otp")
     public ResponseEntity<Map<String, String>> sendOtp(@RequestParam String email) {
         try {
@@ -85,7 +86,6 @@ public class UserController {
         }
     }
 
-    // ✅ Step 2: Verify OTP
     @PostMapping("/verify-otp")
     public ResponseEntity<Map<String, Object>> verifyOtp(@RequestParam String email, @RequestParam String otp) {
         boolean isValid = userService.verifyOtp(email, otp);
@@ -95,7 +95,6 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    // ✅ Step 3: Reset password using OTP
     @PostMapping("/reset-password-with-otp")
     public ResponseEntity<Map<String, String>> resetPasswordWithOtp(
             @RequestParam String email,
