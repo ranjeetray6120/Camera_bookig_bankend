@@ -11,8 +11,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -69,11 +69,11 @@ public class SecurityConfig {
             "http://127.0.0.1:5500",
             "http://localhost:5500",
             "http://localhost:4200",
-            "http://localhost:8080",
             "https://camerabooking.netlify.app",
             "https://camerabookingweb.netlify.app",
             "https://camera-bookig-bankend.onrender.com"
         ));
+
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization", "Access-Control-Allow-Origin"));
@@ -82,7 +82,7 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
 
-        LOGGER.info("🌍 CORS configuration loaded with origins: " + configuration.getAllowedOrigins());
+        LOGGER.info("🌍 CORS configuration applied with origins: " + configuration.getAllowedOrigins());
 
         return source;
     }
